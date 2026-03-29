@@ -200,3 +200,30 @@ window.startSimulation = function() {
         simulateTraffic(); // Trigger first one immediately
     }
 }
+
+// --- AI PREDICTOR FOR PRESENTATIONS ---
+window.runAIPrediction = function() {
+    const btn = document.getElementById("run-ai-btn");
+    const results = document.getElementById("ai-results");
+    
+    // Reset state
+    btn.style.color = "var(--text-main)";
+    btn.innerHTML = "Initializing Neural Network Models... ⏳";
+    btn.disabled = true;
+    results.style.display = "none";
+    
+    setTimeout(() => {
+        btn.innerHTML = "Processing Regional Transit Data... 📊";
+    }, 1500);
+    
+    setTimeout(() => {
+        btn.innerHTML = "Analyzing Inventory Constraints... 🧠";
+    }, 3000);
+    
+    setTimeout(() => {
+        btn.innerHTML = "Run Neural Network Analysis";
+        btn.style.color = "var(--primary)";
+        btn.disabled = false;
+        results.style.display = "block"; // Show the AI insights
+    }, 4500);
+}

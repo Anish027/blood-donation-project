@@ -186,6 +186,25 @@
 
     <div class="admin-panels">
 
+        <!-- AI Demand Analytics -->
+        <div class="panel-section" id="ai-panel">
+            <h3><span style="color: var(--primary);">✨ AI Analysis</span> 14-Day Demand Forecast</h3>
+            <p style="color: var(--text-muted); margin-bottom: 20px;">Use predictive modeling to forecast upcoming regional shortages based on historical and current inventory trends.</p>
+            <button class="logout-btn" id="run-ai-btn" onclick="runAIPrediction()" style="width: 100%; text-align: center; border-color: var(--primary); padding: 12px; font-size: 1.1rem;">Run Neural Network Analysis</button>
+            
+            <div id="ai-results" style="display: none; margin-top: 25px;">
+                <div style="background: rgba(20, 184, 166, 0.05); border-left: 4px solid var(--accent); padding: 15px; border-radius: 4px;">
+                    <h4 style="margin-bottom: 5px; color: var(--accent);">✅ Network Stable</h4>
+                    <p style="font-size: 0.9rem; margin-bottom: 10px;">A+, B+, and O+ supplies are projected to remain steady over the next 14 days.</p>
+                </div>
+                
+                <div style="background: rgba(255, 71, 87, 0.05); border-left: 4px solid var(--primary); padding: 15px; border-radius: 4px; margin-top: 15px;">
+                    <h4 style="margin-bottom: 5px; color: var(--primary);">🚨 High Risk of Depletion: O-</h4>
+                    <p style="font-size: 0.9rem;">Historical models indicate a 91% probability of severe O- shortage within 96 hours across 3 facilities in your network due to an upcoming holiday weekend. Immediate routing from reserves recommended.</p>
+                </div>
+            </div>
+        </div>
+
         <!-- Registered Hospitals -->
         <div class="panel-section">
             <h3>Registered Facilities <span class="count" id="hospital-count">0</span></h3>
