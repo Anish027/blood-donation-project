@@ -1,5 +1,5 @@
 /* hospital.css specific overrides for Dashboard */
-@import url('theme.css');
+@import url('theme.css?v=3.1');
 
 body {
   background: var(--bg-main);
