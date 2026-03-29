@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Hospital Profile</title>
-  <link rel="stylesheet" href="hospital.css">
+  <link rel="stylesheet" href="hospital.css?v=3.1">
 
 </head>
 
@@ -91,6 +91,9 @@
   </script>
 
 
+  <script>
+    if(localStorage.getItem('bb_dark_mode') === 'true') document.body.classList.add('dark-mode');
+  </script>
 </body>
 
 </html>

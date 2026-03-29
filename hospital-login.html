@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Hospital Login - Blood Buddy</title>
-  <link rel="stylesheet" href="theme.css?v=2.0">
+  <link rel="stylesheet" href="theme.css?v=3.1">
   <style>
     body {
       display: flex;
@@ -87,6 +87,9 @@
 
   <script type="module" src="hospital-login.js"></script>
 
+  <script>
+    if(localStorage.getItem('bb_dark_mode') === 'true') document.body.classList.add('dark-mode');
+  </script>
 </body>
 
 </html>
