@@ -1,0 +1,168 @@
+/* blood-transfer-form.css */
+@import url('https://fonts.googleapis.com/css2?family=Times+New+Roman&display=swap');
+
+#pdf-wrapper {
+  display: none;
+}
+
+#pdf-content {
+  width: 800px; /* A4-ish width for print */
+  margin: 0 auto;
+  padding: 40px;
+  background: white;
+  color: black;
+  font-family: 'Times New Roman', Times, serif, sans-serif;
+  line-height: 1.3;
+  box-sizing: border-box;
+}
+
+#pdf-content * {
+  box-sizing: border-box;
+}
+
+#pdf-content .header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+#pdf-content .header-left, #pdf-content .header-right {
+  width: 20%;
+}
+
+#pdf-content .header-center {
+  width: 60%;
+}
+
+#pdf-content .header-center h4 {
+  margin: 0;
+  font-weight: normal;
+  font-size: 14px;
+}
+
+#pdf-content .header-center h2 {
+  margin: 5px 0;
+  font-size: 18px;
+  text-transform: uppercase;
+}
+
+#pdf-content .header-center p {
+  margin: 0;
+  font-size: 12px;
+}
+
+#pdf-content .header-right {
+  text-align: right;
+  font-size: 14px;
+}
+
+#pdf-content .section-title {
+  font-weight: bold;
+  font-size: 14px;
+  margin: 15px 0 2px 0;
+  border: 1px solid black;
+  padding: 4px;
+  border-bottom: none;
+  background-color: #f9f9f9;
+}
+
+#pdf-content .section-title.no-border-bottom {
+  border-bottom: 1px solid black;
+  margin-bottom: 0;
+}
+
+#pdf-content .info-box {
+  border: 1px solid black;
+  padding: 8px;
+  margin-bottom: 15px;
+}
+
+#pdf-content .info-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+#pdf-content .info-field {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+#pdf-content .info-field span {
+  margin-left: 5px;
+  border-bottom: 1px dotted black;
+  flex-grow: 1;
+  min-height: 18px;
+  display: inline-block;
+}
+
+#pdf-content .info-field.full-width {
+  width: 100%;
+}
+
+#pdf-content table.pdf-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 15px;
+}
+
+#pdf-content table.pdf-table th, #pdf-content table.pdf-table td {
+  border: 1px solid black;
+  padding: 8px;
+  text-align: center;
+  font-size: 14px;
+}
+
+#pdf-content table.pdf-table th {
+  background-color: #f0f0f0;
+}
+
+#pdf-content .auth-box {
+  display: flex;
+  border: 1px solid black;
+  margin-bottom: 15px;
+}
+
+#pdf-content .auth-column {
+  flex: 1;
+  border-right: 1px solid black;
+}
+
+#pdf-content .auth-column:last-child {
+  border-right: none;
+}
+
+#pdf-content .auth-column-title {
+  text-align: center;
+  border-bottom: 1px solid black;
+  padding: 5px;
+  font-weight: bold;
+}
+
+#pdf-content .auth-column-content {
+  padding: 10px;
+  min-height: 80px;
+}
+
+#pdf-content .declaration {
+  font-size: 12px;
+  text-align: justify;
+  margin-bottom: 15px;
+}
+
+#pdf-content .audit-info {
+  display: flex;
+  border: 1px solid black;
+  padding: 5px;
+  font-size: 12px;
+  justify-content: space-between;
+}
+
+#pdf-content .footer-text {
+  text-align: center;
+  font-size: 10px;
+  margin-top: 10px;
+}

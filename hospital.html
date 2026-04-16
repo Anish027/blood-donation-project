@@ -5,8 +5,9 @@
   <meta charset="UTF-8" />
   <title>Hospital Dashboard</title>
   <link rel="stylesheet" href="hospital.css?v=3.0">
-  <!-- Load jsPDF for Documentation Generation -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <link rel="stylesheet" href="blood-transfer-form.css">
+  <!-- Load html2pdf for precise styling capture -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 
 <body>
@@ -82,6 +83,116 @@
     </svg>
   </div>
 
+  <!-- PDF Layout Hidden Template -->
+  <div id="pdf-wrapper">
+    <div id="pdf-content">
+      <div class="header-container">
+        <div class="header-left"></div>
+        <div class="header-center">
+          <h4>Government of India (Simulated Prototype Document)</h4>
+          <h2>Inter-Hospital Blood Transfer Request & Issue Form</h2>
+          <p>(For Coordination and Inventory Management Use Only)</p>
+        </div>
+        <div class="header-right">
+          <div>Form Reference Number</div>
+          <div>Form No: <span id="pdf-form-no"></span></div>
+        </div>
+      </div>
+
+      <div class="section-title no-border-bottom">
+        <div style="display:flex; justify-content: space-between;">
+          <span>0. Unique Identifiers</span>
+          <span>Date & Time of Generation: <span id="pdf-generation-time"></span></span>
+        </div>
+      </div>
+      <div class="info-box">
+        <div class="info-row">
+          <div class="info-field">Transfer ID: <span id="pdf-transfer-id"></span></div>
+          <div class="info-field">Request ID: <span id="pdf-request-id"></span></div>
+        </div>
+      </div>
+
+      <div class="section-title no-border-bottom">Section 1: Requesting Hospital Details</div>
+      <div class="info-box">
+        <div class="info-field full-width">Hospital Name: <span id="pdf-req-name"></span></div>
+        <div class="info-field full-width" style="margin-top: 5px;">Address: <span id="pdf-req-address"></span></div>
+        <div class="info-row" style="margin-top: 5px;">
+          <div class="info-field">Contact Number: <span id="pdf-req-contact"></span></div>
+          <div class="info-field" style="margin-left: 20px;">License Number (as per Drugs & Cosmetics Act): <span id="pdf-req-license"></span></div>
+        </div>
+      </div>
+
+      <div class="section-title no-border-bottom">Section 2: Supplying Hospital Details</div>
+      <div class="info-box">
+        <div class="info-field full-width">Hospital Name: <span id="pdf-sup-name"></span></div>
+        <div class="info-field full-width" style="margin-top: 5px;">Address: <span id="pdf-sup-address"></span></div>
+        <div class="info-row" style="margin-top: 5px;">
+          <div class="info-field">Contact Number: <span id="pdf-sup-contact"></span></div>
+          <div class="info-field" style="margin-left: 20px;">License Number (as per Drugs & Cosmetics Act): <span id="pdf-sup-license"></span></div>
+        </div>
+      </div>
+
+      <div class="section-title bg-transparent" style="border:none; padding:0; background:transparent;">Section 3: Blood Component Details</div>
+      <table class="pdf-table">
+        <thead>
+          <tr>
+            <th>Blood Group</th>
+            <th>Rh Factor</th>
+            <th>Component Type (RBC / Platelet / Plasma / Cryo)</th>
+            <th>Quantity (Units)</th>
+            <th>Expiry Date</th>
+          </tr>
+        </thead>
+        <tbody id="pdf-blood-tbody">
+          <!-- Rows will be injected dynamically -->
+        </tbody>
+      </table>
+
+      <div class="section-title bg-transparent" style="border:none; padding:0; background:transparent;">Section 4: Transfer Details</div>
+      <div class="info-box">
+        <div style="font-size: 14px; margin-bottom: 5px;">Approval Status: <strong>Approved</strong></div>
+        <div style="font-size: 14px; margin-bottom: 5px;">Date of Approval: <span id="pdf-approval-date" style="border-bottom: 1px dotted black; min-width: 150px; display:inline-block; padding-left: 5px;"></span></div>
+        <div style="font-size: 14px;">Expected Dispatch Date: <span id="pdf-dispatch-date" style="border-bottom: 1px dotted black; min-width: 150px; display:inline-block; padding-left: 5px;"></span></div>
+      </div>
+
+      <div class="section-title bg-transparent" style="border:none; padding:0; background:transparent;">Section 5: Authorization</div>
+      <div class="auth-box">
+        <div class="auth-column">
+          <div class="auth-column-title">Authorized Signatory</div>
+          <div class="auth-column-content">
+            <div>Name: </div>
+            <div style="margin-top: 25px;">Signature: </div>
+            <div style="margin-top: 25px;">Stamp: </div>
+          </div>
+        </div>
+        <div class="auth-column">
+          <div class="auth-column-title">System Administrator Approval</div>
+          <div class="auth-column-content">
+            <div>Name: <span id="pdf-admin-name" style="font-weight: bold; padding-left: 5px;"></span></div>
+            <div style="margin-top: 25px;">Signature: </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title bg-transparent" style="border:none; padding:0; background:transparent;">Section 6: Declaration</div>
+      <div class="info-box declaration">
+        “This transfer is coordinated between licensed medical institutions. The receiving hospital is responsible for proper storage, handling, and clinical use of blood components in accordance with applicable guidelines under the Drugs and Cosmetics Act, 1940 and National Blood Policy of India.”
+      </div>
+
+      <div class="section-title bg-transparent" style="border:none; padding:0; background:transparent;">Section 7: Audit Information</div>
+      <div class="audit-info">
+        <div>Generated By: <strong id="pdf-gen-by"></strong></div>
+        <div>Approved By: <strong id="pdf-app-by"></strong></div>
+        <div>Timestamp: <strong id="pdf-timestamp"></strong></div>
+      </div>
+
+      <div class="footer-text">
+        This is a system-generated document for coordination purposes only.<br>
+        Not a substitute for statutory blood requisition forms.<br>
+        For academic and prototype demonstration use only.
+      </div>
+    </div>
+  </div>
 
   <script type="module">
     import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
@@ -355,7 +466,7 @@
           if (r.status === 'ISSUED' || r.status === 'APPROVED') {
             // Pass data safely as JSON payload
             const payload = encodeURIComponent(JSON.stringify({
-              id: r.id, date: r.created_at, sender: senderName, receiver: receiverName, bg: r.blood_group, units: r.units
+              id: r.id, date: r.created_at, sender: senderName, receiver: receiverName, bg: r.blood_group, units: r.units, sender_id: r.sender_id, receiver_id: r.receiver_id
             }));
             actionBtn = `<button style="background: #0cebeb; border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; display: block; margin-top: 10px;" onclick="generatePDF('${payload}')">Download PDF Form</button>`;
           }
@@ -420,6 +531,21 @@
       // 4. Log Audit & Refresh UI
       logAudit("TRANSFER_APPROVED", `Approved request ${requestId}. Deducted ${requiredUnits} units of ${bloodGroup}.`);
       alert(`Request Approved. Inventory deducted and transferred successfully!`);
+      
+      try {
+        const payload = encodeURIComponent(JSON.stringify({
+            id: requestId, 
+            sender_id: requesterId, 
+            receiver_id: hospitalId, 
+            bg: bloodGroup, 
+            units: requiredUnits, 
+            system_auto_generate: true 
+        }));
+        window.generatePDF(payload);
+      } catch (e) {
+        console.error("Auto PDF generation failed inline", e);
+      }
+
       loadInventory();
       loadInboxAndHistory();
     };
@@ -431,45 +557,115 @@
       loadInboxAndHistory();
     };
 
-    // 🔹 GENERATE PDF FORM (Using jsPDF)
-    window.generatePDF = function (encodedPayload) {
-      const data = JSON.parse(decodeURIComponent(encodedPayload));
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
+    // 🔹 GENERATE PDF FORM (Using html2pdf)
+    window.generatePDF = async function (encodedPayload) {
+      document.body.style.cursor = 'wait';
+      try {
+        const data = JSON.parse(decodeURIComponent(encodedPayload));
+        
+        let transferRecord = data;
+        const isSenderObj = typeof data.sender_id === 'string'; 
+        const reqHospitalId = data.sender_id || data.reqId || transferRecord.sender_id;
+        const supHospitalId = data.receiver_id || data.supId || transferRecord.receiver_id;
 
-      doc.setFontSize(22);
-      doc.text("BLOOD BUDDY", 105, 20, null, null, "center");
-      doc.setFontSize(16);
-      doc.text("Official Blood Issue / Transfer Form", 105, 30, null, null, "center");
+        // Fetch hospital details
+        let { data: reqHospital } = await supabase.from('hospitals').select('*').eq('id', reqHospitalId).maybeSingle();
+        let { data: supHospital } = await supabase.from('hospitals').select('*').eq('id', supHospitalId).maybeSingle();
 
-      doc.setFontSize(12);
-      doc.text(`Transaction ID: ${data.id}`, 20, 50);
-      doc.text(`Date of Issue: ${new Date(data.date).toLocaleString()}`, 20, 60);
+        if (!reqHospital) reqHospital = { name: "Unknown Hospital", id: reqHospitalId };
+        if (!supHospital) supHospital = { name: "Unknown Hospital", id: supHospitalId };
 
-      doc.setLineWidth(0.5);
-      doc.line(20, 65, 190, 65);
+        // --- Data Handling & Fallback logic ---
+        const getField = (record, field, defaultVal) => {
+            if (!record || !record[field]) return defaultVal;
+            return record[field];
+        };
 
-      doc.text(`Issued To (Receiver): ${data.receiver}`, 20, 80);
-      doc.text(`Originating Lab (Sender): ${data.sender}`, 20, 90);
+        const generateLicense = (city) => `DL-${(city||'IND').substring(0,3).toUpperCase()}-${Math.floor(Math.random()*9000)+1000}`;
+        const generateAddress = (city, pincode) => `${city || 'N/A'}, ${pincode || 'N/A'}, India`;
 
-      doc.setFontSize(14);
-      doc.text("Blood Components Authorized:", 20, 110);
-      doc.setFontSize(12);
-      doc.text(`- Component Type: Packed Red Blood Cells / Whole Blood`, 25, 120);
-      doc.text(`- Blood Group: ${data.bg}`, 25, 130);
-      doc.text(`- Quantity Issued: ${data.units} Units`, 25, 140);
+        const reqLicense = getField(reqHospital, 'license_number', generateLicense(reqHospital?.city));
+        const reqAddress = getField(reqHospital, 'address', generateAddress(reqHospital?.city, reqHospital?.pincode));
+        const reqContact = getField(reqHospital, 'contact_number', 'N/A');
 
-      doc.line(20, 150, 190, 150);
+        const supLicense = getField(supHospital, 'license_number', generateLicense(supHospital?.city));
+        const supAddress = getField(supHospital, 'address', generateAddress(supHospital?.city, supHospital?.pincode));
+        const supContact = getField(supHospital, 'contact_number', 'N/A');
 
-      doc.text("Authorized Signature:", 20, 170);
-      doc.text("_________________________", 20, 180);
+        const bg = data.bg || transferRecord.blood_group || "N/A";
+        const units = data.units || transferRecord.units || 0;
+        const rhFactor = bg === "N/A" ? "N/A" : (bg.includes('-') ? 'Negative' : 'Positive');
+        
+        let componentType = getField(transferRecord, 'component_type', "Packed Red Blood Cells (PRBC)");
+        
+        const now = new Date();
+        const dispatchDate = new Date();
+        dispatchDate.setDate(now.getDate() + 7); // 7 days from now expected dispatch
+        const expDate = new Date();
+        expDate.setDate(now.getDate() + 35); // Approx PRBC expiry
 
-      doc.setFontSize(10);
-      doc.text("This document is systematically generated and digitally audited.", 105, 280, null, null, "center");
+        const approvalDateStr = transferRecord.date ? new Date(transferRecord.date).toLocaleString() : now.toLocaleString();
+        const transferId = data.id.substring(0, 8).toUpperCase();
+        // Generate pseudo random request ID if not specifically supplied via separate table
+        const reqId = data.id.substring(data.id.length - 8).toUpperCase(); 
 
-      // Name the file
-      doc.save(`Transfer_Form_${data.id.substring(0, 8)}.pdf`);
-      logAudit("DOCUMENT_GENERATED", `Downloaded PDF documentation for Transfer ${data.id}.`);
+        document.getElementById("pdf-form-no").textContent = `BTF-${transferId}`;
+        document.getElementById("pdf-generation-time").textContent = now.toLocaleString();
+        document.getElementById("pdf-transfer-id").textContent = transferId;
+        document.getElementById("pdf-request-id").textContent = reqId;
+
+        document.getElementById("pdf-req-name").textContent = reqHospital?.name || "N/A";
+        document.getElementById("pdf-req-address").textContent = reqAddress;
+        document.getElementById("pdf-req-contact").textContent = reqContact;
+        document.getElementById("pdf-req-license").textContent = reqLicense;
+
+        document.getElementById("pdf-sup-name").textContent = supHospital?.name || "N/A";
+        document.getElementById("pdf-sup-address").textContent = supAddress;
+        document.getElementById("pdf-sup-contact").textContent = supContact;
+        document.getElementById("pdf-sup-license").textContent = supLicense;
+
+        document.getElementById("pdf-approval-date").textContent = approvalDateStr;
+        document.getElementById("pdf-dispatch-date").textContent = dispatchDate.toLocaleDateString();
+
+        document.getElementById("pdf-admin-name").textContent = "Sys Admin"; 
+        
+        document.getElementById("pdf-gen-by").textContent = "Blood Buddy SYSTEM";
+        document.getElementById("pdf-app-by").textContent = "Hospital Administrator";
+        document.getElementById("pdf-timestamp").textContent = now.toLocaleString();
+
+        document.getElementById("pdf-blood-tbody").innerHTML = `
+          <tr>
+            <td>${bg}</td>
+            <td>${rhFactor}</td>
+            <td>${componentType}</td>
+            <td>${units}</td>
+            <td>${expDate.toLocaleDateString()}</td>
+          </tr>
+          <tr><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td></td><td></td><td></td><td></td><td></td></tr>
+        `;
+
+        const element = document.getElementById('pdf-content');
+        element.parentElement.style.display = 'block';
+        
+        const opt = {
+          margin:       0.3,
+          filename:     `Transfer_Form_${transferId}.pdf`,
+          image:        { type: 'jpeg', quality: 0.98 },
+          html2canvas:  { scale: 2, useCORS: true },
+          jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+        };
+
+        html2pdf().set(opt).from(element).save().then(() => {
+          element.parentElement.style.display = 'none';
+          logAudit("DOCUMENT_GENERATED", `Downloaded PDF Form for Transfer ${data.id}.`);
+          document.body.style.cursor = 'default';
+        });
+      } catch (err) {
+        console.error("PDF Gen Error:", err);
+        alert("Failed to generate PDF. See console.");
+        document.body.style.cursor = 'default';
+      }
     };
 
     window.onload = function () {

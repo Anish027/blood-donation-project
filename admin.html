@@ -137,7 +137,8 @@
             display: inline-block;
         }
 
-        .badge.active {
+        .badge.active,
+        .badge.approved {
             background: #dcfce7;
             color: #15803d;
         }
@@ -145,6 +146,11 @@
         .badge.pending {
             background: #fef3c7;
             color: #d97706;
+        }
+
+        .badge.rejected {
+            background: #fef2f2;
+            color: #dc2626;
         }
 
         .badge.completed {
@@ -168,6 +174,69 @@
             color: var(--primary);
             border-color: #fca5a5;
         }
+
+        /* Approval action buttons */
+        .action-btn {
+            padding: 0.4rem 0.9rem;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .action-btn.approve {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .action-btn.approve:hover {
+            background: #15803d;
+            color: white;
+        }
+
+        .action-btn.reject {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .action-btn.reject:hover {
+            background: #dc2626;
+            color: white;
+        }
+
+        .action-btn.view-license {
+            background: #e0e7ff;
+            color: #4338ca;
+        }
+
+        .action-btn.view-license:hover {
+            background: #4338ca;
+            color: white;
+        }
+
+        .pending-highlight {
+            border-left: 4px solid #f59e0b;
+        }
+
+        .detail-row {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.4rem;
+            font-size: 0.9rem;
+        }
+
+        .detail-row .label {
+            color: var(--text-muted);
+            min-width: 120px;
+            font-weight: 500;
+        }
+
+        .detail-row .value {
+            color: var(--text-main);
+            font-weight: 600;
+        }
     </style>
 </head>
 
@@ -176,8 +245,11 @@
     <header class="admin-nav">
         <h2>Blood Buddy <span class="admin-badge">ADMIN</span></h2>
         <div>
-            <button class="logout-btn" onclick="toggleDarkMode()" style="margin-right: 15px; border-color: var(--border-color);">🌙 Theme</button>
-            <button id="sim-btn" class="logout-btn" style="border-color: var(--primary); color: var(--primary); margin-right: 15px;" onclick="startSimulation()">⚡ Start Live Simulator</button>
+            <button class="logout-btn" onclick="toggleDarkMode()"
+                style="margin-right: 15px; border-color: var(--border-color);">🌙 Theme</button>
+            <button id="sim-btn" class="logout-btn"
+                style="border-color: var(--primary); color: var(--primary); margin-right: 15px;"
+                onclick="startSimulation()">⚡ Start Live Simulator</button>
             <button class="logout-btn" onclick="logoutAdmin()">Secure Logout</button>
         </div>
     </header>
@@ -186,22 +258,11 @@
 
     <div class="admin-panels">
 
-        <!-- AI Demand Analytics -->
-        <div class="panel-section" id="ai-panel">
-            <h3><span style="color: var(--primary);">✨ AI Analysis</span> 14-Day Demand Forecast</h3>
-            <p style="color: var(--text-muted); margin-bottom: 20px;">Use predictive modeling to forecast upcoming regional shortages based on historical and current inventory trends.</p>
-            <button class="logout-btn" id="run-ai-btn" onclick="runAIPrediction()" style="width: 100%; text-align: center; border-color: var(--primary); padding: 12px; font-size: 1.1rem;">Run Neural Network Analysis</button>
-            
-            <div id="ai-results" style="display: none; margin-top: 25px;">
-                <div style="background: rgba(20, 184, 166, 0.05); border-left: 4px solid var(--accent); padding: 15px; border-radius: 4px;">
-                    <h4 style="margin-bottom: 5px; color: var(--accent);">✅ Network Stable</h4>
-                    <p style="font-size: 0.9rem; margin-bottom: 10px;">A+, B+, and O+ supplies are projected to remain steady over the next 14 days.</p>
-                </div>
-                
-                <div style="background: rgba(255, 71, 87, 0.05); border-left: 4px solid var(--primary); padding: 15px; border-radius: 4px; margin-top: 15px;">
-                    <h4 style="margin-bottom: 5px; color: var(--primary);">🚨 High Risk of Depletion: O-</h4>
-                    <p style="font-size: 0.9rem;">Historical models indicate a 91% probability of severe O- shortage within 96 hours across 3 facilities in your network due to an upcoming holiday weekend. Immediate routing from reserves recommended.</p>
-                </div>
+        <!-- Pending Approvals -->
+        <div class="panel-section pending-highlight">
+            <h3>Pending Approvals <span class="count" id="pending-count">0</span></h3>
+            <div id="pending-list">
+                <p style="text-align: center; color: var(--text-muted); padding: 1rem;">Loading pending approvals...</p>
             </div>
         </div>
 
@@ -215,13 +276,14 @@
                         <th>Name</th>
                         <th>Email</th>
                         <th>Location</th>
+                        <th>License #</th>
                         <th>Type</th>
                         <th>Status</th>
                     </tr>
                 </thead>
                 <tbody id="hospitals-body">
                     <tr>
-                        <td colspan="6" style="text-align:center;">Loading network data...</td>
+                        <td colspan="7" style="text-align:center;">Loading network data...</td>
                     </tr>
                 </tbody>
             </table>
@@ -230,7 +292,8 @@
         <!-- Live Inter-Hospital Requests (Chats and Comms) -->
         <div class="panel-section">
             <h3>Live Network Communications <span class="count" id="chat-count">0</span></h3>
-            <div id="chats-body" style="display: flex; flex-direction: column; gap: 15px; max-height: 400px; overflow-y: auto; padding-right: 10px;">
+            <div id="chats-body"
+                style="display: flex; flex-direction: column; gap: 15px; max-height: 400px; overflow-y: auto; padding-right: 10px;">
                 <p style="text-align: center; color: var(--text-muted);">Loading network communications...</p>
             </div>
         </div>
@@ -284,7 +347,7 @@
     <script type="module" src="admin.js"></script>
     <script>
         // Check local storage setting immediately
-        if(localStorage.getItem('bb_dark_mode') === 'true') {
+        if (localStorage.getItem('bb_dark_mode') === 'true') {
             document.body.classList.add('dark-mode');
         }
 

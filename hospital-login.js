@@ -10,6 +10,12 @@ document.querySelector("#loginForm").addEventListener("submit", async (e) => {
 
   const email = document.querySelector("#email").value;
   const password = document.querySelector("#password").value;
+  const btn = document.querySelector(".submit-btn");
+  const originalText = btn.textContent;
+
+  btn.textContent = "Authenticating...";
+  btn.disabled = true;
+  btn.style.opacity = "0.7";
 
   // 1️⃣ Login
   const { data, error } = await supabase.auth.signInWithPassword({
@@ -19,12 +25,15 @@ document.querySelector("#loginForm").addEventListener("submit", async (e) => {
 
   if (error) {
     alert(error.message);
+    btn.textContent = originalText;
+    btn.disabled = false;
+    btn.style.opacity = "1";
     return;
   }
 
   const userId = data.user.id;
 
-  // 2️⃣ Check hospital verification
+  // 2️⃣ Check hospital verification using the `verified` boolean column
   const { data: hospital, error: dbError } = await supabase
     .from("hospitals")
     .select("verified")
@@ -32,16 +41,22 @@ document.querySelector("#loginForm").addEventListener("submit", async (e) => {
     .single();
 
   if (dbError) {
-    alert("Hospital profile not found.");
+    alert("Hospital profile not found. Please register first.");
+    btn.textContent = originalText;
+    btn.disabled = false;
+    btn.style.opacity = "1";
     return;
   }
 
-  // 3️⃣ Block unverified hospitals
-  if (!hospital.verified) {
-    alert("Your hospital is not verified yet. Please wait for admin approval.");
+  // 3️⃣ Access control: only verified === true hospitals can access
+  if (hospital.verified === true) {
+    window.location.href = `hospital.html?id=${userId}`;
     return;
   }
 
-  // 4️⃣ Redirect verified hospitals
-  window.location.href = `hospital.html?id=${userId}`;
+  // Not verified — show pending message
+  alert("Your account is pending admin verification");
+  btn.textContent = originalText;
+  btn.disabled = false;
+  btn.style.opacity = "1";
 });

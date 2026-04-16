@@ -4,44 +4,193 @@
 <head>
   <meta charset="UTF-8">
   <title>Hospital Profile</title>
-  <link rel="stylesheet" href="hospital.css?v=3.1">
+  <link rel="stylesheet" href="theme.css?v=3.1">
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+      background-image:
+        radial-gradient(circle at 0% 0%, rgba(255, 71, 87, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 100% 100%, rgba(20, 184, 166, 0.05) 0%, transparent 50%);
+    }
 
+    .profile-card {
+      width: 100%;
+      max-width: 550px;
+      padding: 3rem 2.5rem;
+    }
+
+    .profile-card h1 {
+      font-size: 1.8rem;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .profile-icon {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .profile-icon i {
+      font-size: 3rem;
+      color: var(--primary);
+    }
+
+    .profile-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .profile-section-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .profile-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.7rem 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .profile-row:last-child {
+      border-bottom: none;
+    }
+
+    .profile-row span {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .profile-row strong {
+      color: var(--text-main);
+      font-size: 0.95rem;
+      text-align: right;
+      max-width: 60%;
+      word-break: break-word;
+    }
+
+    .status-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .status-badge.approved {
+      background: #dcfce7;
+      color: #15803d;
+    }
+
+    .status-badge.pending {
+      background: #fef3c7;
+      color: #d97706;
+    }
+
+    .status-badge.rejected {
+      background: #fef2f2;
+      color: #dc2626;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 2rem;
+    }
+
+    .btn-group .btn {
+      flex: 1;
+      text-align: center;
+    }
+
+    .license-link {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.2s;
+    }
+
+    .license-link:hover {
+      color: var(--primary);
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
 </head>
 
 <body>
 
-  <div class="card">
+  <div class="glass-panel profile-card">
+    <div class="profile-icon">
+      <i class="fas fa-hospital"></i>
+    </div>
     <h1>Hospital Profile</h1>
 
-    <div class="profile-row">
-      <span>Name:</span>
-      <strong id="name">Loading...</strong>
+    <div class="profile-section">
+      <div class="profile-section-title">General Information</div>
+      <div class="profile-row">
+        <span>Name:</span>
+        <strong id="name">Loading...</strong>
+      </div>
+      <div class="profile-row">
+        <span>City:</span>
+        <strong id="city">Loading...</strong>
+      </div>
+      <div class="profile-row">
+        <span>Address:</span>
+        <strong id="address">Loading...</strong>
+      </div>
+      <div class="profile-row">
+        <span>Contact:</span>
+        <strong id="contact">Loading...</strong>
+      </div>
+      <div class="profile-row">
+        <span>Type:</span>
+        <strong id="type">Loading...</strong>
+      </div>
     </div>
 
-    <div class="profile-row">
-      <span>City:</span>
-      <strong id="city">Loading...</strong>
+    <div class="profile-section">
+      <div class="profile-section-title">License & Verification</div>
+      <div class="profile-row">
+        <span>License #:</span>
+        <strong id="license">Loading...</strong>
+      </div>
+      <div class="profile-row">
+        <span>License Doc:</span>
+        <strong id="licenseDoc">Loading...</strong>
+      </div>
+      <div class="profile-row">
+        <span>Status:</span>
+        <strong id="status">Loading...</strong>
+      </div>
     </div>
 
-    <div class="profile-row">
-      <span>Type:</span>
-      <strong id="type">Loading...</strong>
+    <div class="profile-section">
+      <div class="profile-section-title">System</div>
+      <div class="profile-row">
+        <span>Hospital ID:</span>
+        <strong id="id" style="font-family: monospace; font-size: 0.8rem;">Loading...</strong>
+      </div>
     </div>
 
-    <div class="profile-row">
-      <span>Verified:</span>
-      <strong id="verified">Loading...</strong>
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="goDashboard()">
+        <i class="fas fa-tachometer-alt" style="margin-right: 8px;"></i> Dashboard
+      </button>
+      <button class="btn btn-secondary" onclick="goLogout()">
+        <i class="fas fa-sign-out-alt" style="margin-right: 8px;"></i> Logout
+      </button>
     </div>
-
-    <div class="profile-row">
-      <span>Hospital ID:</span>
-      <strong id="id">Loading...</strong>
-    </div>
-
-    <button class="dashboard-btn" onclick="goDashboard()">
-      Go to Dashboard
-    </button>
-
   </div>
 
   <script type="module">
@@ -52,7 +201,6 @@
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ6cnhwZWpqZnpsZWNwdWd5bHF4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkyNTkxNjksImV4cCI6MjA4NDgzNTE2OX0.tS3GgxA5L969XGQK9Uw4qxTcqco1Y2iytoKcfos0DNU"
     );
 
-    // Get hospital ID from URL instead of auth session
     const params = new URLSearchParams(window.location.search);
     const hospitalId = params.get("id");
 
@@ -61,7 +209,6 @@
       window.location.href = "hospital-login.html";
     }
 
-    // Load hospital profile
     async function loadProfile() {
       const { data, error } = await supabase
         .from("hospitals")
@@ -75,21 +222,51 @@
         return;
       }
 
-      document.getElementById("name").textContent = data.name;
-      document.getElementById("city").textContent = data.city;
-      document.getElementById("type").textContent = data.type;
-      document.getElementById("verified").textContent = data.verified ? "Yes" : "No";
+      document.getElementById("name").textContent = data.name || 'N/A';
+      document.getElementById("city").textContent = data.city || 'N/A';
+      document.getElementById("address").textContent = data.address || 'N/A';
+      document.getElementById("contact").textContent = data.contact_number || 'N/A';
+      document.getElementById("type").textContent = data.type || 'N/A';
+      document.getElementById("license").textContent = data.license_number || 'N/A';
       document.getElementById("id").textContent = data.id;
+
+      // License document link
+      const licenseEl = document.getElementById("licenseDoc");
+      if (data.license_file_url) {
+        licenseEl.innerHTML = `<a href="javascript:void(0);" onclick="viewMyLicense('${data.license_file_url}')" class="license-link"><i class="fas fa-file-pdf" style="margin-right: 5px;"></i>View PDF</a>`;
+      } else {
+        licenseEl.textContent = 'Not uploaded';
+      }
+
+      window.viewMyLicense = async function(filePath) {
+        console.log("Generating signed URL for exact path (profile):", filePath);
+        const { data: urlData, error: urlError } = await supabase.storage
+          .from('hospital-licenses')
+          .createSignedUrl(filePath, 60 * 60);
+        if (urlError) {
+          alert('Failed to open document: ' + urlError.message);
+          return;
+        }
+        window.open(urlData.signedUrl, '_blank');
+      };
+
+      // Status badge — uses the `verified` boolean column
+      const isVerified = data.verified === true;
+      const statusLabel = isVerified ? 'Approved' : 'Pending';
+      const statusClass = isVerified ? 'approved' : 'pending';
+      document.getElementById("status").innerHTML = `<span class="status-badge ${statusClass}">${statusLabel}</span>`;
     }
 
-    // Back to dashboard
     window.goDashboard = function () {
       window.location.href = "hospital.html?id=" + hospitalId;
     };
 
+    window.goLogout = function () {
+      window.location.href = "hospital-login.html";
+    };
+
     loadProfile();
   </script>
-
 
   <script>
     if(localStorage.getItem('bb_dark_mode') === 'true') document.body.classList.add('dark-mode');
