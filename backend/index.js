@@ -21,6 +21,7 @@ app.use("/api/hospitals", require("./routes/hospitalRoutes"));
 app.use("/api/inventory", require("./routes/inventoryRoutes"));
 app.use("/api/requests", require("./routes/requestRoutes"));
 app.use("/api/donors", require("./routes/donorRoutes"));
+app.use("/api/match", require("./routes/matchRoutes"));
 
 app.get("/", (req, res) => {
   res.send("Blood Buddy API Running");

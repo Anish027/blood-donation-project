@@ -3,87 +3,231 @@
 
 <head>
   <meta charset="UTF-8" />
-  <title>Hospital Dashboard</title>
+  <title>Hospital Operational Dashboard</title>
   <link rel="stylesheet" href="hospital.css?v=3.0">
   <link rel="stylesheet" href="blood-transfer-form.css">
-  <!-- Load html2pdf for precise styling capture -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    /* Tab Styling */
+    .tab-container {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding-bottom: 10px;
+      overflow-x: auto;
+    }
+    .tab-link {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #94a3b8;
+      padding: 10px 20px;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: all 0.3s;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+    .tab-link:hover {
+      background: rgba(255,255,255,0.05);
+      color: white;
+    }
+    .tab-link.active {
+      background: #20e3b2;
+      color: black;
+      border-color: #20e3b2;
+    }
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Data Tables */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      background: rgba(0,0,0,0.2);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .data-table th, .data-table td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .data-table th {
+      background: rgba(255,255,255,0.05);
+      color: #94a3b8;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 12px;
+    }
+    .data-table tr:hover {
+      background: rgba(255,255,255,0.03);
+    }
+
+    /* Counter Controls */
+    .counter-control {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .counter-btn {
+      background: rgba(255,255,255,0.1);
+      border: none;
+      color: white;
+      width: 28px;
+      height: 28px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .counter-btn:hover { background: rgba(255,255,255,0.2); }
+    .counter-val { width: 30px; text-align: center; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
 </head>
 
 <body>
 
-  <h1>Hospital Blood Inventory</h1>
+  <h1>Hospital Operations Command</h1>
 
-  <div class="control-bar">
-    <input id="hospitalId" placeholder="Hospital ID" />
-    <button class="primary-btn" onclick="loadInventory()">Load Inventory</button>
-    <button class="primary-btn" onclick="saveInventory()"
-      style="background: linear-gradient(135deg, #0cebeb, #20e3b2, #29ffc6); color: black;">Save Changes</button>
-    <button class="primary-btn" onclick="toggleDarkMode()" style="background: var(--bg-secondary); color: var(--text-main); border: 1px solid var(--border-color);">🌙 Theme</button>
+  <div class="control-bar" style="justify-content: flex-end; margin-bottom: 20px;">
+    <button class="primary-btn" id="themeBtn" style="background: var(--bg-secondary); color: var(--text-main); border: 1px solid var(--border-color);">🌙 Theme</button>
   </div>
 
-  <div id="grid" class="grid"></div>
-
-  <hr style="border: 1px solid rgba(255,255,255,0.1); margin: 40px auto; max-width: 1000px;">
-  <h1>Blood Transfer Requests</h1>
-  <div class="messaging-container"
-    style="display: flex; gap: 20px; max-width: 1000px; margin: 0 auto; padding: 0 20px 20px; flex-wrap: wrap;">
-
-    <!-- Send Request Form -->
-    <div class="card" style="flex: 1; min-width: 300px;">
-      <h3>Request Blood Units</h3>
-      <select id="requestReceiver"
-        style="width: 100%; padding: 12px; margin-bottom: 15px; background: rgba(255,255,255,0.9); border-radius: 8px; border: none; font-size: 16px; color: black;">
-        <option value="">Select Target Hospital...</option>
-      </select>
-
-      <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-        <select id="requestBloodGroup"
-          style="flex: 1; padding: 12px; background: rgba(255,255,255,0.9); border-radius: 8px; border: none; font-size: 16px; color: black;">
-          <option value="">Blood Group</option>
-          <option value="A+">A+</option>
-          <option value="A-">A-</option>
-          <option value="B+">B+</option>
-          <option value="B-">B-</option>
-          <option value="O+">O+</option>
-          <option value="O-">O-</option>
-          <option value="AB+">AB+</option>
-          <option value="AB-">AB-</option>
-        </select>
-        <input id="requestUnits" type="number" min="1" placeholder="Units"
-          style="flex: 1; padding: 12px; background: rgba(255,255,255,0.9); border-radius: 8px; border: none; font-size: 16px; color: black;" />
-      </div>
-
-      <button class="primary-btn" onclick="sendBloodRequest()" style="width: 100%;">Submit Request</button>
+  <div style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+    
+    <!-- Navigation Tabs -->
+    <div class="tab-container">
+      <button class="tab-link active" data-tab="tab-inventory">📦 Inventory Mgmt</button>
+      <button class="tab-link" data-tab="tab-requests">📡 My Requests</button>
+      <button class="tab-link" data-tab="tab-incoming">🔔 Incoming Allocations</button>
+      <button class="tab-link" data-tab="tab-transactions">🚚 Transactions Tracking</button>
     </div>
 
-    <!-- Inbox & Authorizations -->
-    <div class="card" style="flex: 1; min-width: 300px; max-height: 400px; overflow-y: auto;">
-      <h3>Pending Authorizations</h3>
-      <div id="inboxList">
-        <p style="color: #ccc;">Loading requests...</p>
+    <!-- TAB 1: Inventory Management -->
+    <div id="tab-inventory" class="tab-content active">
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+          <h3>Current Stock Management</h3>
+          <button class="primary-btn" id="saveInventoryBtn" style="background: linear-gradient(135deg, #0cebeb, #20e3b2, #29ffc6); color: black;">Save Changes</button>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Blood Group</th>
+              <th>Total Units</th>
+              <th>Reserved (Locked)</th>
+              <th>Available (Surplus)</th>
+              <th>Modify Stock</th>
+            </tr>
+          </thead>
+          <tbody id="inventoryBody">
+            <tr><td colspan="5" style="text-align: center; color: #94a3b8;">Loading inventory...</td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
+
+    <!-- TAB 2: My Requests (Requester View) -->
+    <div id="tab-requests" class="tab-content">
+      <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+        
+        <!-- Request Creation Form -->
+        <div class="card" style="flex: 1; min-width: 300px;">
+          <h3>Create New Request</h3>
+          <select id="reqBloodGroup" style="width: 100%; padding: 12px; margin-bottom: 15px; background: rgba(255,255,255,0.9); border-radius: 8px; border: none; font-size: 16px; color: black;">
+            <option value="">Select Blood Group</option>
+            <option value="A+">A+</option><option value="A-">A-</option>
+            <option value="B+">B+</option><option value="B-">B-</option>
+            <option value="O+">O+</option><option value="O-">O-</option>
+            <option value="AB+">AB+</option><option value="AB-">AB-</option>
+          </select>
+          <input id="reqUnits" type="number" min="1" placeholder="Units Required" style="width: 100%; padding: 12px; margin-bottom: 15px; background: rgba(255,255,255,0.9); border-radius: 8px; border: none; font-size: 16px; color: black;" />
+          <select id="reqPriority" style="width: 100%; padding: 12px; margin-bottom: 15px; background: rgba(255,255,255,0.9); border-radius: 8px; border: none; font-size: 16px; color: black;">
+            <option value="Routine">Routine</option>
+            <option value="Urgent">Urgent</option>
+            <option value="Emergency">Emergency</option>
+          </select>
+          <button id="createRequestBtn" style="width: 100%;">Submit Request</button>
+        </div>
+
+        <!-- Active Requests Panel -->
+        <div class="card" style="flex: 2; min-width: 400px; max-height: 600px; overflow-y: auto;">
+          <h3>My Active Requests Tracking</h3>
+          <div id="myRequestsList">
+            <p style="color: #94a3b8;">Loading requests...</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TAB 3: Incoming Allocations (Sender View) -->
+    <div id="tab-incoming" class="tab-content">
+      <div class="card">
+        <h3>Pending Network Requests</h3>
+        <p style="color: #94a3b8; font-size: 13px; margin-bottom: 15px;">Other hospitals are requesting your surplus inventory. Approving will generate a Transfer manifest.</p>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Requesting Hospital</th>
+              <th>Blood Group</th>
+              <th>Units Allocated</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="incomingRequestsBody">
+            <tr><td colspan="5" style="text-align: center; color: #94a3b8;">Loading incoming requests...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 4: Transactions -->
+    <div id="tab-transactions" class="tab-content">
+      <div class="card">
+        <h3>Transfer History & Live Tracking</h3>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID #</th>
+              <th>Date</th>
+              <th>Sender</th>
+              <th>Receiver</th>
+              <th>Component</th>
+              <th>Status</th>
+              <th>Documents</th>
+            </tr>
+          </thead>
+          <tbody id="transactionsBody">
+            <tr><td colspan="7" style="text-align: center; color: #94a3b8;">Loading transactions...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
   </div>
 
-  <div class="messaging-container"
-    style="display: flex; gap: 20px; max-width: 1000px; margin: 0 auto; padding: 0 20px 50px; flex-wrap: wrap;">
-    <!-- Issued / Audit History -->
-    <div class="card" style="flex: 1; width: 100%; max-height: 400px; overflow-y: auto;">
-      <h3>Transfer History & Audit Logs</h3>
-      <div id="historyList">
-        <p style="color: #ccc;">Loading history...</p>
-      </div>
-    </div>
-  </div>
-  <div class="profile-fab" onclick="goProfile()" title="Hospital Profile">
+  <!-- Profile FAB Button -->
+  <button class="profile-fab" id="profileBtn" title="Hospital Profile">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 100%; height: 100%; padding: 8px; color: #ff4757;">
       <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
       <circle cx="12" cy="7" r="4"></circle>
     </svg>
-  </div>
+  </button>
 
-  <!-- PDF Layout Hidden Template -->
+  <!-- PDF Layout Hidden Template (from previous implementations, unmodified) -->
   <div id="pdf-wrapper">
     <div id="pdf-content">
       <div class="header-container">
@@ -118,7 +262,7 @@
         <div class="info-field full-width" style="margin-top: 5px;">Address: <span id="pdf-req-address"></span></div>
         <div class="info-row" style="margin-top: 5px;">
           <div class="info-field">Contact Number: <span id="pdf-req-contact"></span></div>
-          <div class="info-field" style="margin-left: 20px;">License Number (as per Drugs & Cosmetics Act): <span id="pdf-req-license"></span></div>
+          <div class="info-field" style="margin-left: 20px;">License Number: <span id="pdf-req-license"></span></div>
         </div>
       </div>
 
@@ -128,11 +272,12 @@
         <div class="info-field full-width" style="margin-top: 5px;">Address: <span id="pdf-sup-address"></span></div>
         <div class="info-row" style="margin-top: 5px;">
           <div class="info-field">Contact Number: <span id="pdf-sup-contact"></span></div>
-          <div class="info-field" style="margin-left: 20px;">License Number (as per Drugs & Cosmetics Act): <span id="pdf-sup-license"></span></div>
+          <div class="info-field" style="margin-left: 20px;">License Number: <span id="pdf-sup-license"></span></div>
         </div>
       </div>
 
-      <div class="section-title bg-transparent" style="border:none; padding:0; background:transparent;">Section 3: Blood Component Details</div>
+      <div class="section-title bg-transparent" style="border:none; padding:0; background:transparent;">Section 3: Blood
+        Component Details</div>
       <table class="pdf-table">
         <thead>
           <tr>
@@ -148,14 +293,18 @@
         </tbody>
       </table>
 
-      <div class="section-title bg-transparent" style="border:none; padding:0; background:transparent;">Section 4: Transfer Details</div>
+      <div class="section-title bg-transparent" style="border:none; padding:0; background:transparent;">Section 4:
+        Transfer Details</div>
       <div class="info-box">
         <div style="font-size: 14px; margin-bottom: 5px;">Approval Status: <strong>Approved</strong></div>
-        <div style="font-size: 14px; margin-bottom: 5px;">Date of Approval: <span id="pdf-approval-date" style="border-bottom: 1px dotted black; min-width: 150px; display:inline-block; padding-left: 5px;"></span></div>
-        <div style="font-size: 14px;">Expected Dispatch Date: <span id="pdf-dispatch-date" style="border-bottom: 1px dotted black; min-width: 150px; display:inline-block; padding-left: 5px;"></span></div>
+        <div style="font-size: 14px; margin-bottom: 5px;">Date of Approval: <span id="pdf-approval-date" style="border-bottom: 1px dotted black; min-width: 150px; display:inline-block; padding-left: 5px;"></span>
+        </div>
+        <div style="font-size: 14px;">Expected Dispatch Date: <span id="pdf-dispatch-date" style="border-bottom: 1px dotted black; min-width: 150px; display:inline-block; padding-left: 5px;"></span>
+        </div>
       </div>
 
-      <div class="section-title bg-transparent" style="border:none; padding:0; background:transparent;">Section 5: Authorization</div>
+      <div class="section-title bg-transparent" style="border:none; padding:0; background:transparent;">Section 5:
+        Authorization</div>
       <div class="auth-box">
         <div class="auth-column">
           <div class="auth-column-title">Authorized Signatory</div>
@@ -174,12 +323,16 @@
         </div>
       </div>
 
-      <div class="section-title bg-transparent" style="border:none; padding:0; background:transparent;">Section 6: Declaration</div>
+      <div class="section-title bg-transparent" style="border:none; padding:0; background:transparent;">Section 6:
+        Declaration</div>
       <div class="info-box declaration">
-        “This transfer is coordinated between licensed medical institutions. The receiving hospital is responsible for proper storage, handling, and clinical use of blood components in accordance with applicable guidelines under the Drugs and Cosmetics Act, 1940 and National Blood Policy of India.”
+        “This transfer is coordinated between licensed medical institutions. The receiving hospital is responsible for
+        proper storage, handling, and clinical use of blood components in accordance with applicable guidelines under
+        the Drugs and Cosmetics Act, 1940 and National Blood Policy of India.”
       </div>
 
-      <div class="section-title bg-transparent" style="border:none; padding:0; background:transparent;">Section 7: Audit Information</div>
+      <div class="section-title bg-transparent" style="border:none; padding:0; background:transparent;">Section 7: Audit
+        Information</div>
       <div class="audit-info">
         <div>Generated By: <strong id="pdf-gen-by"></strong></div>
         <div>Approved By: <strong id="pdf-app-by"></strong></div>
@@ -193,489 +346,8 @@
       </div>
     </div>
   </div>
-
-  <script type="module">
-    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
-
-    const supabase = createClient(
-      "https://bzrxpejjfzlecpugylqx.supabase.co",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ6cnhwZWpqZnpsZWNwdWd5bHF4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjkyNTkxNjksImV4cCI6MjA4NDgzNTE2OX0.tS3GgxA5L969XGQK9Uw4qxTcqco1Y2iytoKcfos0DNU"
-    );
-
-    // 🔹 PROFILE BUTTON
-    window.goProfile = function () {
-      const hospitalId = new URLSearchParams(window.location.search).get("id");
-      if (!hospitalId) {
-        alert("Session expired. Please login again.");
-        return;
-      }
-      window.location.href = "hospital-profile.html?id=" + hospitalId;
-    };
-
-    // 🔹 DARK MODE TOGGLE
-    window.toggleDarkMode = function() {
-      document.body.classList.toggle('dark-mode');
-      localStorage.setItem('bb_dark_mode', document.body.classList.contains('dark-mode'));
-    };
-
-    // 🔹 LOAD INVENTORY
-    async function loadInventory() {
-      const hospitalId =
-        new URLSearchParams(window.location.search).get("id") ||
-        document.getElementById("hospitalId").value;
-
-      if (!hospitalId) {
-        alert("Enter hospital ID first");
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from("inventory")
-        .select("*")
-        .eq("hospital_id", hospitalId);
-
-      if (error) {
-        console.error(error);
-        alert("Failed to load inventory");
-        return;
-      }
-
-      const grid = document.getElementById("grid");
-      grid.innerHTML = "";
-
-      const bloodGroups = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
-
-      bloodGroups.forEach(bg => {
-        const item = data.find(d => d.blood_group === bg);
-        const units = item ? item.units : 0;
-
-        const card = document.createElement("div");
-        card.className = "card";
-
-        if (units === 0) {
-          card.classList.add("critical");
-        } else if (units <= 5) {
-          card.classList.add("low");
-        }
-
-        card.innerHTML = `
-      <h3>${bg}</h3>
-      <p>Units: <span id="units-${bg}">${units}</span></p>
-      <div class="controls">
-        <button onclick="updateUnits('${bg}', -1)">-</button>
-        <button onclick="updateUnits('${bg}', 1)">+</button>
-      </div>
-    `;
-
-        grid.appendChild(card);
-      });
-    }
-
-    // 🔹 MAKE IT GLOBAL (IMPORTANT)
-    window.loadInventory = loadInventory;
-
-    // 🔹 UPDATE UNITS (UI ONLY)
-    window.updateUnits = function (bloodGroup, delta) {
-      const span = document.getElementById(`units-${bloodGroup}`);
-      let units = parseInt(span.textContent) + delta;
-      if (units < 0) units = 0;
-      span.textContent = units;
-    };
-
-    // 🔹 SAVE INVENTORY TO DB
-    window.saveInventory = async function () {
-      const hospitalId =
-        new URLSearchParams(window.location.search).get("id") ||
-        document.getElementById("hospitalId").value;
-
-      if (!hospitalId) {
-        alert("Enter hospital ID first");
-        return;
-      }
-
-      const bloodGroups = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
-      let allSuccess = true;
-
-      // Update button visual state
-      const saveBtn = document.querySelector("button[onclick='saveInventory()']");
-      const originalText = saveBtn.textContent;
-      saveBtn.textContent = "Saving...";
-      saveBtn.disabled = true;
-
-      for (const bloodGroup of bloodGroups) {
-        const span = document.getElementById(`units-${bloodGroup}`);
-        if (!span) continue;
-
-        const units = parseInt(span.textContent);
-
-        const { data: existing } = await supabase
-          .from("inventory")
-          .select("*")
-          .eq("hospital_id", hospitalId)
-          .eq("blood_group", bloodGroup)
-          .maybeSingle();
-
-        if (existing) {
-          const { error } = await supabase
-            .from("inventory")
-            .update({ units })
-            .eq("hospital_id", hospitalId)
-            .eq("blood_group", bloodGroup);
-          if (error) {
-            console.error("Failed to update", error);
-            allSuccess = false;
-          }
-        } else {
-          const { error } = await supabase
-            .from("inventory")
-            .insert({ hospital_id: hospitalId, blood_group: bloodGroup, units });
-          if (error) {
-            console.error("Failed to insert", error);
-            allSuccess = false;
-          }
-        }
-      }
-
-      saveBtn.textContent = originalText;
-      saveBtn.disabled = false;
-
-      if (allSuccess) {
-        alert("Inventory successfully saved to the database!");
-      } else {
-        alert("Some updates failed. Check console for details.");
-      }
-    };
-
-    // 🔹 AUDIT LOGGING FUNCTION
-    async function logAudit(actionType, description) {
-      const hospitalId = new URLSearchParams(window.location.search).get("id") || document.getElementById("hospitalId").value;
-      await supabase.from("audit_logs").insert({
-        hospital_id: hospitalId,
-        action_type: actionType,
-        description: description
-      });
-    }
-
-    // 🔹 LOAD HOSPITALS FOR DROPDOWN
-    async function loadHospitalsForRequest() {
-      const hospitalId = new URLSearchParams(window.location.search).get("id") || document.getElementById("hospitalId").value;
-      const { data } = await supabase.from("hospitals").select("id, name");
-      if (data) {
-        window.hospitalDirectory = {}; // Cache for later use
-        const select = document.getElementById("requestReceiver");
-        select.innerHTML = '<option value="">Select Target Hospital...</option>';
-        data.forEach(h => {
-          window.hospitalDirectory[h.id] = h.name;
-          if (h.id !== hospitalId) {
-            select.innerHTML += `<option value="${h.id}">${h.name}</option>`;
-          }
-        });
-      }
-    }
-
-    // 🔹 SEND BLOOD REQUEST
-    window.sendBloodRequest = async function () {
-      const senderId = new URLSearchParams(window.location.search).get("id") || document.getElementById("hospitalId").value;
-      const receiverId = document.getElementById("requestReceiver").value;
-      const bloodGroup = document.getElementById("requestBloodGroup").value;
-      const units = document.getElementById("requestUnits").value;
-
-      if (!senderId || !receiverId || !bloodGroup || !units) return alert("Please fill all request fields!");
-
-      const { error } = await supabase.from("blood_transfers").insert({
-        sender_id: senderId,
-        receiver_id: receiverId,
-        blood_group: bloodGroup,
-        units: parseInt(units),
-        status: "PENDING"
-      });
-
-      if (error) {
-        console.error("Failed to send request", error);
-        alert("Action failed! Have you created the 'blood_transfers' table in Supabase?");
-      } else {
-        logAudit("REQUEST_CREATED", `Requested ${units} units of ${bloodGroup} from another hospital.`);
-        alert("Blood transfer request submitted successfully!");
-        document.getElementById("requestUnits").value = "";
-        loadInboxAndHistory();
-      }
-    };
-
-    // 🔹 LOAD INBOX & HISTORY
-    window.loadInboxAndHistory = async function () {
-      const hospitalId = new URLSearchParams(window.location.search).get("id") || document.getElementById("hospitalId").value;
-      if (!hospitalId) return;
-
-      // Ensure directory is loaded
-      if (!window.hospitalDirectory) await loadHospitalsForRequest();
-
-      // PENDING AUTHORIZATIONS (Incoming)
-      const { data: incoming, error } = await supabase
-        .from("blood_transfers")
-        .select("*")
-        .eq("receiver_id", hospitalId)
-        .eq("status", "PENDING")
-        .order("created_at", { ascending: false });
-
-      const list = document.getElementById("inboxList");
-      list.innerHTML = "";
-
-      if (error) {
-        list.innerHTML = "<p>Database table 'blood_transfers' not found.</p>";
-      } else if (!incoming || incoming.length === 0) {
-        list.innerHTML = "<p>No pending transfer requests.</p>";
-      } else {
-        incoming.forEach(r => {
-          const senderName = window.hospitalDirectory[r.sender_id] || "Unknown Hospital";
-          list.innerHTML += `
-            <div style="background: rgba(255,255,255,0.1); padding: 15px; margin-bottom: 12px; border-radius: 8px; text-align: left;">
-              <strong style="color: #f25f5c; font-size: 18px;">Emergency Request from ${senderName}</strong><br/>
-              <p style="margin-top: 8px; font-size: 18px;">Needs <b>${r.units} units</b> of <b>${r.blood_group}</b></p>
-              <div style="display: flex; gap: 10px; margin-top: 15px;">
-                <button style="background: #20e3b2; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; color: black; font-weight: bold;" onclick="approveRequest('${r.id}', '${r.blood_group}', ${r.units})">Approve & Deduct</button>
-                <button style="background: rgba(255,255,255,0.2); border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; color: white;" onclick="rejectRequest('${r.id}')">Reject</button>
-              </div>
-            </div>
-          `;
-        });
-      }
-
-      // LOAD TRANSFER HISTORY & AUDIT LOGS
-      const { data: history } = await supabase
-        .from("blood_transfers")
-        .select("*")
-        .or(`sender_id.eq.${hospitalId},receiver_id.eq.${hospitalId}`)
-        .neq("status", "PENDING")
-        .order("created_at", { ascending: false })
-        .limit(10);
-
-      const histList = document.getElementById("historyList");
-      histList.innerHTML = "";
-
-      if (!history || history.length === 0) {
-        histList.innerHTML = "<p>No completed transactions found.</p>";
-      } else {
-        history.forEach(r => {
-          const senderName = window.hospitalDirectory[r.sender_id] || "Unknown";
-          const receiverName = window.hospitalDirectory[r.receiver_id] || "Unknown";
-          const isSender = r.sender_id === hospitalId;
-          const statusColor = r.status === 'ISSUED' || r.status === 'APPROVED' ? '#20e3b2' : '#ff4757';
-
-          let actionBtn = "";
-          // If approved/issued, allow documentation generation
-          if (r.status === 'ISSUED' || r.status === 'APPROVED') {
-            // Pass data safely as JSON payload
-            const payload = encodeURIComponent(JSON.stringify({
-              id: r.id, date: r.created_at, sender: senderName, receiver: receiverName, bg: r.blood_group, units: r.units, sender_id: r.sender_id, receiver_id: r.receiver_id
-            }));
-            actionBtn = `<button style="background: #0cebeb; border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; display: block; margin-top: 10px;" onclick="generatePDF('${payload}')">Download PDF Form</button>`;
-          }
-
-          histList.innerHTML += `
-            <div style="background: rgba(255,255,255,0.05); border-left: 4px solid ${statusColor}; padding: 10px 15px; margin-bottom: 10px; border-radius: 4px; text-align: left; font-size: 14px;">
-              Transfer of ${r.units} units (${r.blood_group}) from ${senderName} to ${receiverName}<br/>
-              Status: <span style="color: ${statusColor}; font-weight: bold;">${r.status}</span>
-              <br/><small style="color: #aaa;">${new Date(r.created_at).toLocaleString()}</small>
-              ${actionBtn}
-            </div>
-          `;
-        });
-      }
-    };
-
-    // 🔹 APPROVE REQUEST
-    window.approveRequest = async function (requestId, bloodGroup, requiredUnits) {
-      const hospitalId = new URLSearchParams(window.location.search).get("id") || document.getElementById("hospitalId").value;
-
-      // Fetch request details to know who asked for the blood
-      const { data: transferReq } = await supabase.from("blood_transfers").select("sender_id").eq("id", requestId).maybeSingle();
-      if (!transferReq) {
-        return alert("Failed to fetch request information.");
-      }
-      const requesterId = transferReq.sender_id;
-
-      // 1. Verify inventory
-      const { data: inv, error: invErr } = await supabase.from("inventory").select("units").eq("hospital_id", hospitalId).eq("blood_group", bloodGroup).maybeSingle();
-
-      if (invErr) {
-        console.error("Fetch inventory error:", invErr);
-        return alert("Error fetching inventory. Check console for details.");
-      }
-
-      const span = document.getElementById(`units-${bloodGroup}`);
-      const uiUnits = span ? parseInt(span.textContent) : 0;
-
-      if (!inv || inv.units < requiredUnits) {
-        if (uiUnits >= requiredUnits) {
-          return alert(`Insufficient Inventory Saved! You have ${uiUnits} units in the UI, but they haven't been saved. Please click "Save Changes" at the top before approving.`);
-        }
-        return alert(`Insufficient Inventory! You only have ${inv ? inv.units : 0} units of ${bloodGroup} saved in the database. Please add more units using the + button and click "Save Changes".`);
-      }
-
-      // 2. Deduct logically from the giver
-      const newUnits = inv.units - requiredUnits;
-      await supabase.from("inventory").update({ units: newUnits }).eq("hospital_id", hospitalId).eq("blood_group", bloodGroup);
-
-      // 2.5 Add to the receiver (the hospital that asked for the blood)
-      const { data: reqInv } = await supabase.from("inventory").select("units").eq("hospital_id", requesterId).eq("blood_group", bloodGroup).maybeSingle();
-      
-      if (reqInv) {
-        await supabase.from("inventory").update({ units: reqInv.units + requiredUnits }).eq("hospital_id", requesterId).eq("blood_group", bloodGroup);
-      } else {
-        await supabase.from("inventory").insert({ hospital_id: requesterId, blood_group: bloodGroup, units: requiredUnits });
-      }
-
-      // 3. Update Transfer Status
-      await supabase.from("blood_transfers").update({ status: 'ISSUED' }).eq("id", requestId);
-
-      // 4. Log Audit & Refresh UI
-      logAudit("TRANSFER_APPROVED", `Approved request ${requestId}. Deducted ${requiredUnits} units of ${bloodGroup}.`);
-      alert(`Request Approved. Inventory deducted and transferred successfully!`);
-      
-      try {
-        const payload = encodeURIComponent(JSON.stringify({
-            id: requestId, 
-            sender_id: requesterId, 
-            receiver_id: hospitalId, 
-            bg: bloodGroup, 
-            units: requiredUnits, 
-            system_auto_generate: true 
-        }));
-        window.generatePDF(payload);
-      } catch (e) {
-        console.error("Auto PDF generation failed inline", e);
-      }
-
-      loadInventory();
-      loadInboxAndHistory();
-    };
-
-    // 🔹 REJECT REQUEST
-    window.rejectRequest = async function (requestId) {
-      await supabase.from("blood_transfers").update({ status: 'REJECTED' }).eq("id", requestId);
-      logAudit("TRANSFER_REJECTED", `Rejected request ${requestId}.`);
-      loadInboxAndHistory();
-    };
-
-    // 🔹 GENERATE PDF FORM (Using html2pdf)
-    window.generatePDF = async function (encodedPayload) {
-      document.body.style.cursor = 'wait';
-      try {
-        const data = JSON.parse(decodeURIComponent(encodedPayload));
-        
-        let transferRecord = data;
-        const isSenderObj = typeof data.sender_id === 'string'; 
-        const reqHospitalId = data.sender_id || data.reqId || transferRecord.sender_id;
-        const supHospitalId = data.receiver_id || data.supId || transferRecord.receiver_id;
-
-        // Fetch hospital details
-        let { data: reqHospital } = await supabase.from('hospitals').select('*').eq('id', reqHospitalId).maybeSingle();
-        let { data: supHospital } = await supabase.from('hospitals').select('*').eq('id', supHospitalId).maybeSingle();
-
-        if (!reqHospital) reqHospital = { name: "Unknown Hospital", id: reqHospitalId };
-        if (!supHospital) supHospital = { name: "Unknown Hospital", id: supHospitalId };
-
-        // --- Data Handling & Fallback logic ---
-        const getField = (record, field, defaultVal) => {
-            if (!record || !record[field]) return defaultVal;
-            return record[field];
-        };
-
-        const generateLicense = (city) => `DL-${(city||'IND').substring(0,3).toUpperCase()}-${Math.floor(Math.random()*9000)+1000}`;
-        const generateAddress = (city, pincode) => `${city || 'N/A'}, ${pincode || 'N/A'}, India`;
-
-        const reqLicense = getField(reqHospital, 'license_number', generateLicense(reqHospital?.city));
-        const reqAddress = getField(reqHospital, 'address', generateAddress(reqHospital?.city, reqHospital?.pincode));
-        const reqContact = getField(reqHospital, 'contact_number', 'N/A');
-
-        const supLicense = getField(supHospital, 'license_number', generateLicense(supHospital?.city));
-        const supAddress = getField(supHospital, 'address', generateAddress(supHospital?.city, supHospital?.pincode));
-        const supContact = getField(supHospital, 'contact_number', 'N/A');
-
-        const bg = data.bg || transferRecord.blood_group || "N/A";
-        const units = data.units || transferRecord.units || 0;
-        const rhFactor = bg === "N/A" ? "N/A" : (bg.includes('-') ? 'Negative' : 'Positive');
-        
-        let componentType = getField(transferRecord, 'component_type', "Packed Red Blood Cells (PRBC)");
-        
-        const now = new Date();
-        const dispatchDate = new Date();
-        dispatchDate.setDate(now.getDate() + 7); // 7 days from now expected dispatch
-        const expDate = new Date();
-        expDate.setDate(now.getDate() + 35); // Approx PRBC expiry
-
-        const approvalDateStr = transferRecord.date ? new Date(transferRecord.date).toLocaleString() : now.toLocaleString();
-        const transferId = data.id.substring(0, 8).toUpperCase();
-        // Generate pseudo random request ID if not specifically supplied via separate table
-        const reqId = data.id.substring(data.id.length - 8).toUpperCase(); 
-
-        document.getElementById("pdf-form-no").textContent = `BTF-${transferId}`;
-        document.getElementById("pdf-generation-time").textContent = now.toLocaleString();
-        document.getElementById("pdf-transfer-id").textContent = transferId;
-        document.getElementById("pdf-request-id").textContent = reqId;
-
-        document.getElementById("pdf-req-name").textContent = reqHospital?.name || "N/A";
-        document.getElementById("pdf-req-address").textContent = reqAddress;
-        document.getElementById("pdf-req-contact").textContent = reqContact;
-        document.getElementById("pdf-req-license").textContent = reqLicense;
-
-        document.getElementById("pdf-sup-name").textContent = supHospital?.name || "N/A";
-        document.getElementById("pdf-sup-address").textContent = supAddress;
-        document.getElementById("pdf-sup-contact").textContent = supContact;
-        document.getElementById("pdf-sup-license").textContent = supLicense;
-
-        document.getElementById("pdf-approval-date").textContent = approvalDateStr;
-        document.getElementById("pdf-dispatch-date").textContent = dispatchDate.toLocaleDateString();
-
-        document.getElementById("pdf-admin-name").textContent = "Sys Admin"; 
-        
-        document.getElementById("pdf-gen-by").textContent = "Blood Buddy SYSTEM";
-        document.getElementById("pdf-app-by").textContent = "Hospital Administrator";
-        document.getElementById("pdf-timestamp").textContent = now.toLocaleString();
-
-        document.getElementById("pdf-blood-tbody").innerHTML = `
-          <tr>
-            <td>${bg}</td>
-            <td>${rhFactor}</td>
-            <td>${componentType}</td>
-            <td>${units}</td>
-            <td>${expDate.toLocaleDateString()}</td>
-          </tr>
-          <tr><td></td><td></td><td></td><td></td><td></td></tr>
-          <tr><td></td><td></td><td></td><td></td><td></td></tr>
-        `;
-
-        const element = document.getElementById('pdf-content');
-        element.parentElement.style.display = 'block';
-        
-        const opt = {
-          margin:       0.3,
-          filename:     `Transfer_Form_${transferId}.pdf`,
-          image:        { type: 'jpeg', quality: 0.98 },
-          html2canvas:  { scale: 2, useCORS: true },
-          jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
-        };
-
-        html2pdf().set(opt).from(element).save().then(() => {
-          element.parentElement.style.display = 'none';
-          logAudit("DOCUMENT_GENERATED", `Downloaded PDF Form for Transfer ${data.id}.`);
-          document.body.style.cursor = 'default';
-        });
-      } catch (err) {
-        console.error("PDF Gen Error:", err);
-        alert("Failed to generate PDF. See console.");
-        document.body.style.cursor = 'default';
-      }
-    };
-
-    window.onload = function () {
-      if(localStorage.getItem('bb_dark_mode') === 'true') document.body.classList.add('dark-mode');
-      loadInventory();
-      loadHospitalsForRequest();
-      loadInboxAndHistory();
-    };
-  </script>
-
+  <!-- Supabase CDN and Local Script -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="hospital.js"></script>
 </body>
-
 </html>

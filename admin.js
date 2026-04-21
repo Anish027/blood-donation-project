@@ -224,7 +224,7 @@ window.rejectHospital = async function (hospitalId, hospitalName) {
 async function loadHospitals() {
     const tbody = document.getElementById('hospitals-body');
     const countEl = document.getElementById('hospital-count');
-    
+
     if (!tbody) {
         console.warn("hospitals-body not found");
         return;
@@ -283,7 +283,7 @@ async function loadTransfers() {
     const chatsBody = document.getElementById('chats-body');
     const countEl = document.getElementById('transfer-count');
     const chatCount = document.getElementById('chat-count');
-    
+
     if (!tbody) {
         console.warn("transfers-body not found");
         return;
@@ -310,7 +310,7 @@ async function loadTransfers() {
 
     if (countEl) countEl.textContent = transfers.length;
     if (chatCount) chatCount.textContent = transfers.length;
-    
+
     if (transfers.length === 0) {
         tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:var(--text-muted);">No records found</td></tr>';
         if (chatsBody) chatsBody.innerHTML = '<p style="text-align: center; color:var(--text-muted);">No records found</p>';
@@ -364,7 +364,7 @@ async function loadTransfers() {
 async function loadAuditLogs() {
     const tbody = document.getElementById('audit-body');
     const countEl = document.getElementById('audit-count');
-    
+
     if (!tbody) {
         console.warn("audit-body not found");
         return;
@@ -387,7 +387,7 @@ async function loadAuditLogs() {
     }
 
     if (countEl) countEl.textContent = logs.length;
-    
+
     if (logs.length === 0) {
         tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--text-muted);">No records found</td></tr>';
         return;
